@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+env/
+*.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/*
+!data/.gitkeep
+
+# Модель и артефакты обучения
+models/
+!models/.gitkeep
+models/metadata.json
+
+# Сгенерированные файлы
+report.html
+predictions.csv
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
