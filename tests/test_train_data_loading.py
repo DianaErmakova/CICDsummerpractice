@@ -8,7 +8,8 @@ def test_data_loading_from_local_file():
         BASE_DIR, '..', 'data', 'heart_cleveland_upload.csv'
     )
 
-    X_train, X_test, y_train, y_test, feature_names = load_sample_data(data_path)
+    X_train, X_test, y_train, \
+        y_test, feature_names = load_sample_data(data_path)
 
     assert X_train.shape[0] > 0, "Тренировочная выборка пуста"
     assert X_test.shape[0] > 0, "Тестовая выборка пуста"
