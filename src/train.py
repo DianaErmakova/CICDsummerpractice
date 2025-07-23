@@ -71,5 +71,3 @@ if __name__ == "__main__":
         json.dump(metadata, f, indent=2)
 
     print("✅ Модель и объекты сохранены.")
-
-

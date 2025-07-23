@@ -6,7 +6,12 @@ from src.predict_utils import model, scaler, features, preprocess_data
 
 def test_inference_prediction_and_report():
     BASE_DIR = os.path.dirname(__file__)
-    CSV_PATH = os.path.join(BASE_DIR, '..', 'data', 'heart_cleveland_upload.csv')
+    CSV_PATH = os.path.join(
+        BASE_DIR,
+        '..',
+        'data',
+        'heart_cleveland_upload.csv'
+    )
     PRED_PATH = os.path.join(BASE_DIR, '..', 'predictions.csv')
     REPORT_PATH = os.path.join(BASE_DIR, '..', 'report.html')
 
@@ -22,6 +27,8 @@ def test_inference_prediction_and_report():
     # Проверка, что предсказания - массив нужной длины
     assert len(preds) == 5
 
+    date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -31,13 +38,14 @@ def test_inference_prediction_and_report():
     </head>
     <body>
         <h1>🫀 Heart Disease Inference Report</h1>
-        <p><strong>Дата:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <p><strong>Дата:</strong> {date_str}</p>
         <p><strong>Количество образцов:</strong> {len(preds)}</p>
         <p><strong>Предсказания:</strong></p>
         {raw_data[['Condition_Predicted']].to_html(index=False)}
     </body>
     </html>
     """
+
     with open(REPORT_PATH, 'w', encoding='utf-8') as f:
         f.write(html)
 

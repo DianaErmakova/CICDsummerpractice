@@ -35,6 +35,8 @@ raw_data['Condition_Predicted'] = preds
 raw_data.to_csv(PRED_PATH, index=False)
 print(f"✅ Предсказания сохранены в {PRED_PATH}")
 
+date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
 # HTML-отчёт
 html = f"""
 <!DOCTYPE html>
@@ -45,13 +47,14 @@ html = f"""
 </head>
 <body>
     <h1>🫀 Heart Disease Inference Report</h1>
-    <p><strong>Дата:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <p><strong>Дата:</strong> {date_str}</p>
     <p><strong>Количество образцов:</strong> {len(preds)}</p>
     <p><strong>Предсказания:</strong></p>
     {raw_data[['Condition_Predicted']].to_html(index=False)}
 </body>
 </html>
 """
+
 with open(REPORT_PATH, 'w', encoding='utf-8') as f:
     f.write(html)
 print(f"📄 Отчёт сохранён в {REPORT_PATH}")

@@ -27,5 +27,9 @@ def test_preprocess_data():
     # Проверим форму
     assert X.shape[0] == 2
     assert y.tolist() == [1, 0]
-    assert any(col.startswith('cp_') for col in X.columns)
-    assert any(col.startswith('thal_') for col in X.columns)
+    assert any(
+        col.startswith('cp_') for col in X.columns
+    )
+    assert any(
+        col.startswith('thal_') for col in X.columns
+    )
