@@ -70,39 +70,34 @@ jobs:
           YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
         run: |
           set -euxo pipefail
+          
           echo ">>> Устанавливаю Yandex CLI..."
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           export PATH="$HOME/yandex-cloud/bin:$PATH"
-
+          
           echo ">>> Сохраняю service account key"
           echo "$YC_SA_KEY" > key.json
-          cat key.json || echo "Ключ не отобразился (секрет скрыт)"
-
+          
           echo ">>> Устанавливаю jq"
           sudo apt-get update && sudo apt-get install -y jq
-
-          echo ">>> Аутентификация Yandex CLI"
-          yc auth activate-service-account --key-file key.json || { echo "!!! Ошибка аутентификации"; exit 1; }
-
+          
+          echo ">>> Получаю IAM токен напрямую"
+          YC_TOKEN=$(yc iam create-token --sa-key-file key.json)
+          echo "YC_TOKEN=${YC_TOKEN}"
+          
           echo ">>> Настраиваю cloud и folder"
+          yc config set token "$YC_TOKEN"
           yc config set cloud-id b1gor6e9ehbjpml7fkgt
           yc config set folder-id b1g5dm8gb8lh0uqgu8pd
-
+          
           echo ">>> Проверяю конфиг"
-          yc config list || { echo "!!! Ошибка конфигурации YC"; exit 1; }
-
+          yc config list
+          
           echo ">>> Настраиваю Docker"
           yc container registry configure-docker
-
-          echo ">>> Логаутим docker, если нужно"
-          docker logout cr.yandex || true
-
-          echo ">>> Получаю IAM token"
-          yc iam create-token || { echo "!!! Не удалось получить токен"; exit 1; }
-
-          echo ">>> Логинимся в Docker"
-          TOKEN=$(yc iam create-token | jq -r '.iamToken' || yc iam create-token)
-          echo $TOKEN | docker login cr.yandex --username oauth --password-stdin || { echo "!!! Ошибка docker login"; exit 1; }
+          
+          echo ">>> Docker логин с токеном"
+          echo "$YC_TOKEN" | docker login --username oauth --password-stdin cr.yandex
 
       - name: Build Docker image
         run: |
