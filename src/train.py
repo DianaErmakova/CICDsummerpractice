@@ -16,9 +16,11 @@ MODEL_PATH = os.path.join(MODEL_DIR, 'model.joblib')
 SCALER_PATH = os.path.join(MODEL_DIR, 'scaler.joblib')
 FEATURES_PATH = os.path.join(MODEL_DIR, 'features.joblib')
 METADATA_PATH = os.path.join(MODEL_DIR, 'metadata.json')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, 'data', 'heart_cleveland_upload.csv')
 
 
-def train_and_evaluate_model(data_path="../data/heart_cleveland_upload.csv"):
+def train_and_evaluate_model(data_path=DATA_PATH):
     # Загрузка и подготовка
     X, y = load_and_preprocess(data_path)
     feature_names = X.columns
