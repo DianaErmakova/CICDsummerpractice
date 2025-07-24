@@ -84,7 +84,8 @@ jobs:
 
       - name: Deploy to Yandex Serverless Container
         run: |
-          $HOME/yandex-cloud/bin/yc serverless container revision deploy \
+          set -x
+          yc serverless container revision deploy \
             --container-name summerpractice-app \
             --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
             --memory 512m \
