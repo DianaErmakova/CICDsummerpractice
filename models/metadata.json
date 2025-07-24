@@ -1,0 +1,26 @@
+{
+  "trained_at": "2025-07-24T12:30:03.617362",
+  "features": [
+    "age",
+    "sex",
+    "trestbps",
+    "chol",
+    "fbs",
+    "thalach",
+    "exang",
+    "oldpeak",
+    "ca",
+    "cp_1",
+    "cp_2",
+    "cp_3",
+    "restecg_1",
+    "restecg_2",
+    "slope_1",
+    "slope_2",
+    "thal_1",
+    "thal_2"
+  ],
+  "accuracy": 0.8167,
+  "f1": 0.807,
+  "auc": 0.8549
+}
