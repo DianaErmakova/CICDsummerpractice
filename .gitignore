@@ -11,14 +11,18 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data
+# Данные
 data/*
-!data/.gitkeep
+!data/heart_cleveland_upload.csv  # разрешаем нужный файл
+!data/.gitkeep                     # если хочешь, чтобы папка точно была
 
-# Модель и артефакты обучения
-models/
+# Модель и артефакты
+models/*
+!models/model.joblib
+!models/scaler.joblib
+!models/features.joblib
+!models/metadata.json
 !models/.gitkeep
-models/metadata.json
 
 # Сгенерированные файлы
 report.html

@@ -6,15 +6,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from src.data_loader import load_and_preprocess
+from data_loader import load_and_preprocess
 
+# Пути
 MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models')
 os.makedirs(MODEL_DIR, exist_ok=True)
 MODEL_PATH = os.path.join(MODEL_DIR, 'model.joblib')
 SCALER_PATH = os.path.join(MODEL_DIR, 'scaler.joblib')
 FEATURES_PATH = os.path.join(MODEL_DIR, 'features.joblib')
 METADATA_PATH = os.path.join(MODEL_DIR, 'metadata.json')
-
 
 def train_and_evaluate_model(data_path="../data/heart_cleveland_upload.csv"):
     # Загрузка и подготовка
@@ -56,10 +56,10 @@ if __name__ == "__main__":
     for k, v in metrics.items():
         print(f"{k}: {v}")
 
-    # Сохраняем
+    # Сохраняем артефакты
     joblib.dump(model, MODEL_PATH)
     joblib.dump(scaler, SCALER_PATH)
-    joblib.dump(feature_names, FEATURES_PATH)
+    joblib.dump(feature_names.tolist(), FEATURES_PATH)  # Важно: сериализуем как список
 
     metadata = {
         "trained_at": datetime.now().isoformat(),
