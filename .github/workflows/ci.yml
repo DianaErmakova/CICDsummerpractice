@@ -47,6 +47,9 @@ jobs:
 
       - name: Run inference
         run: python src/inference.py
+      - name: Debug yc command
+        run: |
+          yc serverless container revision deploy --help
 
   deploy:
     needs: build
