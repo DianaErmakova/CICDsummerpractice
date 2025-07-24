@@ -64,9 +64,11 @@ jobs:
           echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
 
       - name: Authenticate Yandex CLI
+        env:
+          YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
         run: |
           echo "$YC_SA_KEY" > key.json
-          yc config set service-account-key-file key.json
+          yc init --service-account-key key.json --quiet
           yc container registry configure-docker
 
       - name: Build Docker image
