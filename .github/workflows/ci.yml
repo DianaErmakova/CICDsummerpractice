@@ -48,12 +48,11 @@ jobs:
       - name: Run inference
         run: python src/inference.py
 
-deploy:
+  deploy:
     needs: build
     runs-on: ubuntu-latest
     env:
       YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -81,6 +80,8 @@ deploy:
       - name: Push Docker image
         run: |
           docker push cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest
+          docker tag cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest cr.yandex/arzazpush/summerpractice-app:latest
+          docker push cr.yandex/arzazpush/summerpractice-app:latest
 
       - name: Deploy to Yandex Serverless Container
         run: |
