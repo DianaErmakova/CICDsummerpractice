@@ -58,18 +58,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Yandex CLI
+      - name: Install and authenticate Yandex CLI
         run: |
-          curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          export PATH="$HOME/yandex-cloud/bin:$PATH"
 
-      - name: Authenticate Yandex CLI
-        env:
-          YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
-        run: |
           echo "$YC_SA_KEY" > key.json
-          yc init --service-account-key key.json --quiet
-          yc container registry configure-docker
+          ./yandex-cloud/bin/yc config profile create default
+          ./yandex-cloud/bin/yc config set service-account-key key.json
+          ./yandex-cloud/bin/yc config set cloud-id b1gor6e9ehbjpml7fkgt
+          ./yandex-cloud/bin/yc config set folder-id b1g5dm8gb8lh0uqgu8pd 
+          ./yandex-cloud/bin/yc container registry configure-docker
 
       - name: Build Docker image
         run: |
@@ -81,7 +80,7 @@ jobs:
 
       - name: Deploy to Yandex Serverless Container
         run: |
-          yc serverless container revision deploy \
+          ./yandex-cloud/bin/yc serverless container revision deploy \
             --container-name summerpractice-app \
             --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
             --memory 512m \
