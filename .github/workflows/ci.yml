@@ -116,3 +116,6 @@ jobs:
             --execution-timeout 30s \
             --concurrency 1 \
             --service-account-id ajent4a551erqtnobakv || { echo "!!! Ошибка деплоя"; exit 1; }
+
+      - name: Login to Yandex Container Registry
+        run: echo "${{ secrets.YC_OAUTH_TOKEN }}" | docker login cr.yandex --username oauth --password-stdin
