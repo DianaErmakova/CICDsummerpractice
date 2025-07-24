@@ -63,14 +63,13 @@ jobs:
           YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          source ~/.bashrc
 
           echo "$YC_SA_KEY" > key.json
-          yc config profile create default
-          yc config set service-account-key key.json
-          yc config set cloud-id b1gor6e9ehbjpml7fkgt
-          yc config set folder-id b1g5dm8gb8lh0uqgu8pd
-          yc container registry configure-docker
+          ~/yandex-cloud/bin/yc config profile create default
+          ~/yandex-cloud/bin/yc config set service-account-key key.json
+          ~/yandex-cloud/bin/yc config set cloud-id b1gor6e9ehbjpml7fkgt
+          ~/yandex-cloud/bin/yc config set folder-id b1g5dm8gb8lh0uqgu8pd
+          ~/yandex-cloud/bin/yc container registry configure-docker
 
       - name: Build Docker image
         run: |
