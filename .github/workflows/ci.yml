@@ -29,45 +29,37 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -x
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Lint code with flake8
         run: |
-          set -x
           pip install flake8
           flake8 src tests
 
       - name: Run tests
         run: |
-          set -x
           pip install pytest
           pytest -s tests
 
       - name: Train model
-        run: |
-          set -x
-          python src/train.py
+        run: python src/train.py
 
       - name: Run inference
-        run: |
-          set -x
-          python src/inference.py
+        run: python src/inference.py
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     env:
       YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+      YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Yandex CLI, authenticate and configure Docker
-        env:
-          YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+      - name: Install Yandex CLI
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           echo "$YC_SA_KEY" > key.json
@@ -76,37 +68,22 @@ jobs:
           yc config set service-account-key key.json
           yc config set cloud-id b1gor6e9ehbjpml7fkgt
           yc config set folder-id b1g5dm8gb8lh0uqgu8pd
+
+      - name: Configure Docker for Yandex Container Registry
+        run: |
           yc container registry configure-docker
-          echo "${{ secrets.YC_OAUTH_TOKEN }}" | docker login cr.yandex --username oauth --password-stdin
+          echo "${YC_OAUTH_TOKEN}" | docker login cr.yandex --username oauth --password-stdin
 
       - name: Build Docker image
         run: |
-          set -euxo pipefail
-          echo ">>> Содержимое текущей директории"
-          ls -la
-          echo ">>> Docker build..."
           docker build -t cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest .
 
       - name: Push Docker image
         run: |
-          set -euxo pipefail
-          echo ">>> Docker push..."
           docker push cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest
-
-      - name: Debug YC before deploy
-        run: |
-          set -x
-          echo ">>> Версия YC"
-          yc --version
-          echo ">>> Список доступных сервисов"
-          yc --help
-          echo ">>> Проверяю доступные контейнеры"
-          yc serverless container list || echo "Нет контейнеров"
 
       - name: Deploy to Yandex Serverless Container
         run: |
-          set -euxo pipefail
-          echo ">>> Deploying revision..."
           yc serverless container revision deploy \
             --container-name summerpractice-app \
             --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
@@ -115,7 +92,4 @@ jobs:
             --core-fraction 100 \
             --execution-timeout 30s \
             --concurrency 1 \
-            --service-account-id ajent4a551erqtnobakv || { echo "!!! Ошибка деплоя"; exit 1; }
-
-      - name: Login to Yandex Container Registry
-        run: echo "${{ secrets.YC_OAUTH_TOKEN }}" | docker login cr.yandex --username oauth --password-stdin
+            --service-account-id ajent4a551erqtnobakv
