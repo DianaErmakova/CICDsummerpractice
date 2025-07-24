@@ -61,14 +61,14 @@ jobs:
       - name: Install and authenticate Yandex CLI
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          export PATH="$HOME/yandex-cloud/bin:$PATH"
+          source ~/.bashrc
 
           echo "$YC_SA_KEY" > key.json
-          ./yandex-cloud/bin/yc config profile create default
-          ./yandex-cloud/bin/yc config set service-account-key key.json
-          ./yandex-cloud/bin/yc config set cloud-id b1gor6e9ehbjpml7fkgt
-          ./yandex-cloud/bin/yc config set folder-id b1g5dm8gb8lh0uqgu8pd 
-          ./yandex-cloud/bin/yc container registry configure-docker
+          yc config profile create default
+          yc config set service-account-key key.json
+          yc config set cloud-id b1gor6e9ehbjpml7fkgt
+          yc config set folder-id b1g5dm8gb8lh0uqgu8pd
+          yc container registry configure-docker
 
       - name: Build Docker image
         run: |
