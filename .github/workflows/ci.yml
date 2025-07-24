@@ -65,7 +65,7 @@ jobs:
           echo "$YC_SA_KEY" | jq '.' > key.json
           export PATH="$HOME/yandex-cloud/bin:$PATH"
 
-          # Удалим профиль, если он есть (чтобы избежать конфликтов)
+          # Создаем и настраиваем профиль
           yc config profile delete default || true
           yc config profile create default
           yc config set service-account-key key.json
@@ -74,8 +74,11 @@ jobs:
 
           yc container registry configure-docker
 
+          # Игнорируем ошибки logout
           docker logout cr.yandex || true
-          docker login cr.yandex --username oauth --password "$(yc iam create-token)"
+
+          # Логинимся с токеном через stdin (корректный способ)
+          yc iam create-token | docker login cr.yandex --username oauth --password-stdin
 
       - name: Build Docker image
         run: |
