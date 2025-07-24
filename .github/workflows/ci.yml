@@ -73,11 +73,10 @@ jobs:
           echo "$YC_SA_KEY" > key.json
           export PATH="$HOME/yandex-cloud/bin:$PATH"
           yc config profile create default
-          yc config set service-account-key C:\Users\racco\Downloads\my-key.json
+          yc config set service-account-key key.json
           yc config set cloud-id b1gor6e9ehbjpml7fkgt
           yc config set folder-id b1g5dm8gb8lh0uqgu8pd
           yc container registry configure-docker
-          docker logout cr.yandex || true
           echo "${{ secrets.YC_OAUTH_TOKEN }}" | docker login cr.yandex --username oauth --password-stdin
 
       - name: Build Docker image
