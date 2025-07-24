@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 from src.predict_utils import predict_from_dict
+import uvicorn
 
 
 class HeartFeatures(BaseModel):
@@ -39,3 +40,8 @@ def get_report():
     if not os.path.exists(report_path):
         raise HTTPException(status_code=404, detail="Report not found.")
     return FileResponse(report_path, media_type="text/html")
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
