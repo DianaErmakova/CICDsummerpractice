@@ -1,4 +1,4 @@
-name: CI
+name: CI and Deploy
 
 on:
   push:
@@ -47,3 +47,44 @@ jobs:
 
       - name: Run inference
         run: python src/inference.py
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Yandex CLI
+        run: |
+          curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+
+      - name: Authenticate Yandex CLI
+        run: |
+          echo "$YC_SA_KEY" > key.json
+          yc config set service-account-key-file key.json
+          yc container registry configure-docker
+
+      - name: Build Docker image
+        run: |
+          docker build -t cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest
+
+      - name: Deploy to Yandex Serverless Container
+        run: |
+          yc serverless container revision deploy \
+            --container-name summerpractice-app \
+            --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
+            --memory 512m \
+            --cores 1 \
+            --core-fraction 100 \
+            --execution-timeout 30s \
+            --concurrency 1 \
+            --service-account-id ajent4a551erqtnobakv
