@@ -59,31 +59,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Yandex CLI
+      - name: Install Yandex CLI and configure Docker
+        env:
+          YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
         run: |
+          set -euxo pipefail
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          echo "$YC_SA_KEY" > key.json
           export PATH="$HOME/yandex-cloud/bin:$PATH"
+          echo "$YC_SA_KEY" > key.json
+
           yc config profile create default
           yc config set service-account-key key.json
           yc config set cloud-id b1gor6e9ehbjpml7fkgt
           yc config set folder-id b1g5dm8gb8lh0uqgu8pd
 
-      - name: Configure Docker for Yandex Container Registry
-        run: |
           yc container registry configure-docker
           echo "${YC_OAUTH_TOKEN}" | docker login cr.yandex --username oauth --password-stdin
 
       - name: Build Docker image
         run: |
+          set -euxo pipefail
           docker build -t cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest .
 
       - name: Push Docker image
         run: |
+          set -euxo pipefail
           docker push cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest
 
       - name: Deploy to Yandex Serverless Container
         run: |
+          set -euxo pipefail
           yc serverless container revision deploy \
             --container-name summerpractice-app \
             --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
@@ -93,3 +99,4 @@ jobs:
             --execution-timeout 30s \
             --concurrency 1 \
             --service-account-id ajent4a551erqtnobakv
+  
