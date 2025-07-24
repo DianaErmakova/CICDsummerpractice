@@ -53,6 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -70,10 +71,8 @@ jobs:
           yc config set cloud-id b1gor6e9ehbjpml7fkgt
           yc config set folder-id b1g5dm8gb8lh0uqgu8pd
           yc container registry configure-docker
-
           docker logout cr.yandex || true
-
-          TOKEN=$($HOME/yandex-cloud/bin/yc iam create-token --output json | jq -r '.iamToken')
+          TOKEN=$($HOME/yandex-cloud/bin/yc iam create-token | grep 'iamToken' | awk '{print $2}')
           echo $TOKEN | docker login cr.yandex --username oauth --password-stdin
 
       - name: Build Docker image
@@ -83,8 +82,6 @@ jobs:
       - name: Push Docker image
         run: |
           docker push cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest
-          docker tag cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest cr.yandex/arzazpush/summerpractice-app:latest
-          docker push cr.yandex/arzazpush/summerpractice-app:latest
 
       - name: Deploy to Yandex Serverless Container
         run: |
