@@ -53,6 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -64,21 +65,14 @@ jobs:
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           echo "$YC_SA_KEY" | jq '.' > key.json
           export PATH="$HOME/yandex-cloud/bin:$PATH"
-
-          # Создаем и настраиваем профиль
           yc config profile delete default || true
           yc config profile create default
           yc config set service-account-key key.json
           yc config set cloud-id b1gor6e9ehbjpml7fkgt
           yc config set folder-id b1g5dm8gb8lh0uqgu8pd
-
           yc container registry configure-docker
-
-          # Игнорируем ошибки logout
           docker logout cr.yandex || true
-
-          # Логинимся с токеном через stdin (корректный способ)
-          yc iam create-token | docker login cr.yandex --username oauth --password-stdin
+          $HOME/yandex-cloud/bin/yc iam create-token | docker login cr.yandex --username oauth --password-stdin
 
       - name: Build Docker image
         run: |
@@ -90,7 +84,7 @@ jobs:
 
       - name: Deploy to Yandex Serverless Container
         run: |
-          ./yandex-cloud/bin/yc serverless container revision deploy \
+          $HOME/yandex-cloud/bin/yc serverless container revision deploy \
             --container-name summerpractice-app \
             --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
             --memory 512m \
@@ -99,3 +93,49 @@ jobs:
             --execution-timeout 30s \
             --concurrency 1 \
             --service-account-id ajent4a551erqtnobakv
+
+deploy:
+  needs: build
+  runs-on: ubuntu-latest
+  env:
+    YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Yandex CLI, authenticate and configure Docker
+      env:
+        YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
+      run: |
+        curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+        echo "$YC_SA_KEY" | jq '.' > key.json
+        export PATH="$HOME/yandex-cloud/bin:$PATH"
+        yc config profile delete default || true
+        yc config profile create default
+        yc config set service-account-key key.json
+        yc config set cloud-id b1gor6e9ehbjpml7fkgt
+        yc config set folder-id b1g5dm8gb8lh0uqgu8pd
+        yc container registry configure-docker
+        docker logout cr.yandex || true
+        $HOME/yandex-cloud/bin/yc iam create-token | docker login cr.yandex --username oauth --password-stdin
+
+    - name: Build Docker image
+      run: |
+        docker build -t cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest .
+
+    - name: Push Docker image
+      run: |
+        docker push cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest
+
+    - name: Deploy to Yandex Serverless Container
+      run: |
+        $HOME/yandex-cloud/bin/yc serverless container revision deploy \
+          --container-name summerpractice-app \
+          --image cr.yandex/crp12lag013pmq95r5ij/summerpractice-app:latest \
+          --memory 512m \
+          --cores 1 \
+          --core-fraction 100 \
+          --execution-timeout 30s \
+          --concurrency 1 \
+          --service-account-id ajent4a551erqtnobakv
