@@ -64,7 +64,6 @@ jobs:
           YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
           YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
         run: |
-          set -euxo pipefail
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           export PATH="$HOME/yandex-cloud/bin:$PATH"
           echo "$YC_SA_KEY" > key.json
@@ -76,6 +75,12 @@ jobs:
 
           yc container registry configure-docker
           echo "${YC_OAUTH_TOKEN}" | docker login cr.yandex --username oauth --password-stdin
+
+      - name: Debug token length
+        run:
+          echo "Token length: ${#YC_OAUTH_TOKEN}"
+        env:
+          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
 
       - name: Build Docker image
         run: |
