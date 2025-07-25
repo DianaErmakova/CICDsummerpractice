@@ -73,8 +73,7 @@ jobs:
           yc container registry configure-docker
           echo "${YC_OAUTH_TOKEN}" | docker login cr.yandex --username oauth --password-stdin
 
-      # Если нужно проверить наличие токена, используйте это:
-  - name: Check if token is set
+      - name: Check if token is set
         run: |
           if [ -z "$YC_OAUTH_TOKEN" ]; then
             echo "OAuth token is not set"
