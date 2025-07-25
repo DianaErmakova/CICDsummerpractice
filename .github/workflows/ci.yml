@@ -60,9 +60,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Yandex CLI and configure Docker
-        env:
-          YC_SA_KEY: ${{ secrets.YC_SERVICE_ACCOUNT_KEY }}
-          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           export PATH="$HOME/yandex-cloud/bin:$PATH"
@@ -77,10 +74,7 @@ jobs:
           echo "${YC_OAUTH_TOKEN}" | docker login cr.yandex --username oauth --password-stdin
 
       - name: Debug token length
-        run:
-          echo "Token length: ${#YC_OAUTH_TOKEN}"
-        env:
-          YC_OAUTH_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
+        run: echo "Token length: ${#YC_OAUTH_TOKEN}"
 
       - name: Build Docker image
         run: |
@@ -104,4 +98,3 @@ jobs:
             --execution-timeout 30s \
             --concurrency 1 \
             --service-account-id ajent4a551erqtnobakv
-  
